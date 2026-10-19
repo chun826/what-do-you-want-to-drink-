@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>今天喝哪家？飲料拉霸機</title>
+<style>
+:root{--bg:#dce8c0;--card:#f3f8e6;--ink:#1e2c13;--mute:#566a42;--line:#bfd29c;--accent:#3d7a22;--accent2:#9ebd56;--reel:#14240d;--reelink:#e3f2b8;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0f1a09;--card:#172411;--ink:#e4f0cf;--mute:#9fb485;--line:#2b4020;--accent:#4f9230;--reel:#080f05;--reelink:#e3f2b8}}
+:root[data-theme="dark"]{--bg:#0f1a09;--card:#172411;--ink:#e4f0cf;--mute:#9fb485;--line:#2b4020;--accent:#4f9230;--reel:#080f05;--reelink:#e3f2b8}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.5}
+main{max-width:560px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.5rem;text-align:center;margin:8px 0 18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:16px}
+.machine{display:flex;gap:14px;align-items:center}
+.window{flex:1;height:110px;background:var(--reel);border:4px solid var(--accent2);border-radius:14px;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 0 18px #000a;position:relative}
+.window::before,.window::after{content:"";position:absolute;left:0;right:0;height:26px;pointer-events:none}
+.window::before{top:0;background:linear-gradient(var(--reel),transparent)}
+.window::after{bottom:0;background:linear-gradient(transparent,var(--reel))}
+#name{font-size:1.9rem;font-weight:800;color:var(--reelink);text-align:center;padding:0 8px;word-break:keep-all}
+#name.drop{animation:drop .09s ease-out}
+#name.win{animation:win .6s ease-out;color:#fff}
+@keyframes drop{from{transform:translateY(-60%);opacity:.3}to{transform:none;opacity:1}}
+@keyframes win{0%{transform:scale(.7)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+.lever{width:64px;height:110px;position:relative;flex:none;cursor:pointer;border:0;background:none;padding:0;perspective:240px}
+.lever .base{position:absolute;left:10px;top:42px;width:44px;height:26px;border-radius:10px;background:linear-gradient(180deg,#e2dbd4,#8a8079 55%,#5a524c);box-shadow:0 5px 8px #0007,inset 0 1px 0 #fffa,inset 0 -2px 3px #0005}
+.lever .arm{position:absolute;left:0;top:0;width:64px;height:55px;z-index:2;transform-origin:50% 100%;transform-style:preserve-3d;transition:transform .2s cubic-bezier(.4,0,.3,1)}
+.lever .rod{position:absolute;left:28px;top:20px;width:8px;height:35px;border-radius:4px;background:linear-gradient(90deg,#5b534d,#f3eee9 38%,#938a83 68%,#463f3a);box-shadow:2px 0 3px #0004}
+.lever .ball{position:absolute;left:18px;top:0;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 34% 28%,#eaffd0 0,#86c05a 22%,var(--accent) 55%,#1c3a0a 100%);box-shadow:0 5px 7px #0006,inset -2px -3px 5px #0004}
+.lever.pull .arm{transform:rotateX(-172deg)}
+.lever:active .base{filter:brightness(.92)}
+.lever:disabled{cursor:default}
+.actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+button.btn{flex:1;min-width:120px;padding:12px;font-size:1rem;font-weight:700;border-radius:12px;border:2px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer;font-family:inherit}
+button.btn.alt{background:transparent;color:var(--accent)}
+button.btn:disabled{opacity:.45;cursor:default}
+#msg{text-align:center;color:var(--mute);min-height:1.5em;margin:10px 0 0;font-size:.95rem}
+h2{font-size:1.05rem;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center}
+.sub{font-weight:400;color:var(--mute);font-size:.85rem}
+.row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0}
+.row input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);flex:none}
+.row label{flex:1;cursor:pointer}
+.row.off label{color:var(--mute);text-decoration:line-through}
+select,input[type=text]{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+.x{border:0;background:none;color:var(--mute);font-size:1.2rem;cursor:pointer;padding:0 4px}
+.add{display:flex;gap:8px;margin-top:12px}
+.add input{flex:1;min-width:0}
+.add button{padding:6px 14px;border-radius:8px;border:0;background:var(--accent2);color:#1e2c13;font-weight:700;cursor:pointer;font-family:inherit}
+.tools{display:flex;gap:12px;font-size:.85rem;margin-bottom:6px}
+.tools a{color:var(--accent);cursor:pointer}
+.hist{display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--line);font-size:.95rem}
+.hist span:last-child{color:var(--mute)}
+.link{background:none;border:0;color:var(--mute);cursor:pointer;font-size:.85rem;font-family:inherit}
+</style>
+</head>
+<body>
+<main>
+<h1>🧋 今天喝哪家？</h1>
+
+<div class="card">
+  <div class="machine">
+    <div class="window"><div id="name">按下拉桿</div></div>
+    <button class="lever" id="lever" aria-label="拉下拉桿"><span class="base"></span><span class="arm"><span class="rod"></span><span class="ball"></span></span></button>
+  </div>
+  <div class="actions">
+    <button class="btn" id="go">🎰 開始抽</button>
+    <button class="btn alt" id="again" disabled>🔄 重抽</button>
+    <button class="btn alt" id="nope" disabled>🚫 這家不要</button>
+  </div>
+  <p id="msg"></p>
+  <div style="text-align:center"><button class="link" id="mute"></button></div>
+</div>
+
+<div class="card">
+  <h2>飲料店清單 <span class="sub" id="count"></span></h2>
+  <div class="tools"><a id="all">全選</a><a id="none">全不選</a><a id="reset">重設權重</a></div>
+  <div id="list"></div>
+  <div class="add"><input type="text" id="newName" placeholder="新增清單沒有的店家" maxlength="20"><button id="addBtn">新增</button></div>
+  <p class="sub" style="margin:10px 0 0">取消勾選＝排除；「想喝程度」越高，被抽中機率越大。</p>
+</div>
+
+<div class="card">
+  <h2>抽籤紀錄 <button class="link" id="clearH">清除</button></h2>
+  <div id="hist"></div>
+</div>
+</main>
+
+<script>
+const DEFAULTS=["50嵐","清心福全","可不可熟成紅茶","迷客夏","大苑子","CoCo都可","麻古茶坊","五桐號","老賴茶棧","一沐日","先喝道","茶湯會","得正"];
+const KEY="drink-slot-v1";
+let S={shops:DEFAULTS.map(n=>({n,on:true,w:3,c:false})),hist:[]};
+try{const r=JSON.parse(localStorage.getItem(KEY)||"null");if(r&&Array.isArray(r.shops)){S=r;S.hist=S.hist||[]}}catch(e){}
+S.shops=S.shops.filter(s=>s.c||!["珍煮丹","龜記","再睡5分鐘"].includes(s.n));
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id);
+let spinning=false,current=null,muted=!!S.muted,AC=null;
+function ac(){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();return AC}catch(e){return null}}
+function tone(f,d,type,vol,when,slide){const a=ac();if(!a||muted)return;const t=a.currentTime+(when||0);const o=a.createOscillator(),g=a.createGain();o.type=type||"square";o.frequency.setValueAtTime(f,t);if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);g.gain.setValueAtTime(vol||.1,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.02)}
+const sfx={
+  pull(){tone(260,.2,"sawtooth",.1,0,70);tone(110,.12,"square",.12,.19);tone(60,.1,"sine",.2,.19)},
+  tick(p){tone(500+p*600,.045,"square",.05)},
+  win(){[523,659,784,1047].forEach((f,i)=>tone(f,.2,"triangle",.14,i*.09));tone(1047,.55,"triangle",.12,.4);tone(1319,.55,"sine",.08,.4)}
+};
+
+function render(){
+  const L=$("list");L.innerHTML="";
+  S.shops.forEach((s,i)=>{
+    const d=document.createElement("div");d.className="row"+(s.on?"":" off");
+    const cb=document.createElement("input");cb.type="checkbox";cb.id="s"+i;cb.checked=s.on;
+    cb.onchange=()=>{s.on=cb.checked;save();render()};
+    const lb=document.createElement("label");lb.htmlFor="s"+i;lb.textContent=s.n;
+    const sel=document.createElement("select");sel.title="想喝程度";
+    for(let w=1;w<=5;w++){const o=document.createElement("option");o.value=w;o.textContent="★".repeat(w);if(w===s.w)o.selected=true;sel.appendChild(o)}
+    sel.disabled=!s.on;sel.onchange=()=>{s.w=+sel.value;save()};
+    d.append(cb,lb,sel);
+    if(s.c){const x=document.createElement("button");x.className="x";x.textContent="×";x.title="刪除";x.onclick=()=>{S.shops.splice(i,1);save();render()};d.append(x)}
+    L.appendChild(d);
+  });
+  const n=S.shops.filter(s=>s.on).length;
+  $("count").textContent="已選 "+n+" / "+S.shops.length+" 家";
+  const H=$("hist");H.innerHTML="";
+  if(!S.hist.length){H.innerHTML='<p class="sub" style="margin:0">還沒有紀錄，快去抽一次吧。</p>'}
+  S.hist.slice(0,15).forEach(h=>{
+    const d=document.createElement("div");d.className="hist";
+    const a=document.createElement("span");a.textContent=h.n;
+    const b=document.createElement("span");b.textContent=h.t;
+    d.append(a,b);H.appendChild(d);
+  });
+}
+
+function pick(pool){
+  const tot=pool.reduce((a,s)=>a+s.w,0);let r=Math.random()*tot;
+  for(const s of pool){r-=s.w;if(r<=0)return s}
+  return pool[pool.length-1];
+}
+function show(t,cls){const el=$("name");el.className="";void el.offsetWidth;el.textContent=t;el.className=cls||"drop"}
+function setBusy(b){spinning=b;$("go").disabled=b;$("lever").disabled=b;
+  const has=!b&&current;$("again").disabled=!has;$("nope").disabled=!has}
+
+function spin(){
+  if(spinning)return;
+  const pool=S.shops.filter(s=>s.on);
+  if(pool.length<2){$("msg").textContent="至少要勾選 2 家店才能抽喔！";return}
+  $("msg").textContent="";
+  const result=pick(pool);
+  const steps=26+Math.floor(Math.random()*6);
+  let i=0;
+  setBusy(true);current=null;
+  sfx.pull();$("lever").classList.add("pull");setTimeout(()=>$("lever").classList.remove("pull"),420);
+  (function tick(){
+    i++;
+    if(i>=steps){
+      current=result;show(result.n,"win");sfx.win();
+      const d=new Date();
+      S.hist.unshift({n:result.n,t:(d.getMonth()+1)+"/"+d.getDate()+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")});
+      S.hist=S.hist.slice(0,50);save();render();
+      $("msg").textContent="就決定是你了！不滿意可以重抽 👆";
+      setBusy(false);return;
+    }
+    let t;do{t=pool[Math.floor(Math.random()*pool.length)].n}while(t===$("name").textContent&&pool.length>1);
+    show(t);sfx.tick(i/steps);
+    setTimeout(tick,60+Math.pow(i/steps,3)*380);
+  })();
+}
+
+$("go").onclick=spin;$("lever").onclick=spin;$("again").onclick=spin;
+$("nope").onclick=()=>{
+  if(!current||spinning)return;
+  const s=S.shops.find(x=>x.n===current.n);if(s)s.on=false;
+  save();render();spin();
+};
+$("all").onclick=()=>{S.shops.forEach(s=>s.on=true);save();render()};
+$("none").onclick=()=>{S.shops.forEach(s=>s.on=false);save();render()};
+$("reset").onclick=()=>{S.shops.forEach(s=>s.w=3);save();render()};
+$("clearH").onclick=()=>{S.hist=[];save();render()};
+function add(){
+  const v=$("newName").value.trim();if(!v)return;
+  if(S.shops.some(s=>s.n===v)){$("msg").textContent="清單裡已經有「"+v+"」了";return}
+  S.shops.push({n:v,on:true,w:3,c:true});$("newName").value="";save();render();
+}
+$("addBtn").onclick=add;
+$("newName").addEventListener("keydown",e=>{if(e.key==="Enter")add()});
+function paintMute(){$("mute").textContent=muted?"🔇 音效：關":"🔊 音效：開"}
+$("mute").onclick=()=>{muted=!muted;S.muted=muted;save();paintMute();if(!muted)sfx.tick(.5)};
+paintMute();
+render();
+</script>
+</body>
+</html>
