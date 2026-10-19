@@ -1,2 +1,2 @@
 # what-do-you-want-to-drink-
-Wanna have some drinks but cannot decide by yoursel
+Wanna get some drinks but can't make up your mind? This tool can help.
